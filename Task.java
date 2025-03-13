@@ -163,6 +163,42 @@ class TaskList {
             current = current.next;
         }
     }
+    public void addTaskAtPosition(int position, String taskName, String taskDescription, int priority, boolean status) {
+        if (position < 1 || position > size + 1) {
+            System.out.println("Invalid position!");
+            return;
+        }
+
+        Task newTask = new Task(taskName, taskDescription, priority, status);
+        Node newNode = new Node(newTask);
+
+        if (position == 1) {
+            newNode.next = head;
+            if (head != null) {
+                head.prev = newNode;
+            }
+            head = newNode;
+            if (tail == null) {
+                tail = newNode;
+            }
+        } else {
+            Node current = head;
+            for (int i = 1; i < position - 1; i++) {
+                current = current.next;
+            }
+            newNode.next = current.next;
+            newNode.prev = current;
+            if (current.next != null) {
+                current.next.prev = newNode;
+            }
+            current.next = newNode;
+            if (newNode.next == null) {
+                tail = newNode;
+            }
+        }
+        size++;
+        sortPriority();
+    }
     public void printTasks() {
         if (head == null) {
             System.out.println("\nThere are no tasks to complete");
@@ -181,35 +217,15 @@ class TaskList {
         }
     }
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
         TaskList listOfTasks = new TaskList();
 
-        while (true) {
-            System.out.println("Task Name: ");
-            String taskName = scanner.nextLine();
+        listOfTasks.addTask("Shopping", "Buy Clothes and pants", 6, true);
+        listOfTasks.addTask("Grocery", "Buy meats and vegetables.", 4,true);
 
-            System.out.println("Task Description: ");
-            String taskDescription = scanner.nextLine();
+        listOfTasks.addTaskAtPosition(1,"Workout","Go to gym at 1 p.m.",2,false);
 
-            System.out.println("Priority: ");
-            int priority = scanner.nextInt();
-            scanner.nextLine();
-
-            System.out.println("Completed (true/false): ");
-            boolean status = scanner.nextBoolean();
-            scanner.nextLine();
-
-            listOfTasks.addTask(taskName, taskDescription, priority, status);
-
-            System.out.println("Do you want to continue adding more tasks (yes/no): ");
-            String response = scanner.nextLine();
-
-            if (response.equals("no")) {
-                break;
-            }
-        }
         listOfTasks.sortPriority();
-        System.out.print("\nSort tasks by priority:");
+        System.out.print("Sort tasks by priority:");
         listOfTasks.printTasks();
 
         listOfTasks.removeCompletedTask();
@@ -217,6 +233,6 @@ class TaskList {
         listOfTasks.printTasks();
 
         boolean isEmptyOrNot = listOfTasks.checkIfEmpty();
-        System.out.println("\nIs the list empty: " + isEmptyOrNot);
+        System.out.print("\nIs the list empty: " + isEmptyOrNot);
     }
 }

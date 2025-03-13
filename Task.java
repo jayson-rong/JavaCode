@@ -4,7 +4,7 @@ class Node {
     Node prev, next;
     public Node(Task task) { this.task = task; }
 }
-class Task implements Comparable <Task> {
+public class Task implements Comparable <Task> {
     String taskName;
     String taskDescription;
     int priority;
@@ -35,7 +35,6 @@ class TaskList {
     LinkedList<Task> toDo;
     Node head, tail;
     int size;
-
     TaskList() {
         this.size = 0;
     }
@@ -43,7 +42,6 @@ class TaskList {
     public boolean checkIfEmpty() {
         return head == null;
     }
-
     public void addTask(String taskName, String taskDescription, int priority, boolean status) {
         Task newTask = new Task(taskName, taskDescription, priority, status);
         Node newNode = new Node(newTask);
@@ -60,7 +58,6 @@ class TaskList {
         }
         size++;
     }
-
     public void removeCompletedTask() {
         if (head == null) {
             System.out.println("No tasks to remove");
@@ -104,7 +101,7 @@ class TaskList {
 
         Node left = mergeSort(head);
         Node right = mergeSort(endOfFirstHalf);
-
+        
         return merge(left, right);
     }
     protected Node merge(Node left, Node right) {
@@ -116,7 +113,7 @@ class TaskList {
         }
         Node head = (left.task.compareTo(right.task) < 0) ? left : right;
         Node pointer = head;
-
+        
         if (head == left) {
             left = left.next;
         } else {
@@ -163,42 +160,6 @@ class TaskList {
             current = current.next;
         }
     }
-    public void addTaskAtPosition(int position, String taskName, String taskDescription, int priority, boolean status) {
-        if (position < 1 || position > size + 1) {
-            System.out.println("Invalid position!");
-            return;
-        }
-
-        Task newTask = new Task(taskName, taskDescription, priority, status);
-        Node newNode = new Node(newTask);
-
-        if (position == 1) {
-            newNode.next = head;
-            if (head != null) {
-                head.prev = newNode;
-            }
-            head = newNode;
-            if (tail == null) {
-                tail = newNode;
-            }
-        } else {
-            Node current = head;
-            for (int i = 1; i < position - 1; i++) {
-                current = current.next;
-            }
-            newNode.next = current.next;
-            newNode.prev = current;
-            if (current.next != null) {
-                current.next.prev = newNode;
-            }
-            current.next = newNode;
-            if (newNode.next == null) {
-                tail = newNode;
-            }
-        }
-        size++;
-        sortPriority();
-    }
     public void printTasks() {
         if (head == null) {
             System.out.println("\nThere are no tasks to complete");
@@ -218,14 +179,35 @@ class TaskList {
     }
     public static void main(String[] args) {
         TaskList listOfTasks = new TaskList();
+        Scanner scanner = new Scanner(System.in);
 
-        listOfTasks.addTask("Shopping", "Buy Clothes and pants", 6, true);
-        listOfTasks.addTask("Grocery", "Buy meats and vegetables.", 4,true);
+        while (true) {
+            System.out.println("Task Name: ");
+            String taskName = scanner.nextLine();
 
-        listOfTasks.addTaskAtPosition(1,"Workout","Go to gym at 1 p.m.",2,false);
+            System.out.println("Task Description: ");
+            String taskDescription = scanner.nextLine();
+
+            System.out.println("Priority: ");
+            int priority = scanner.nextInt();
+            scanner.nextLine();
+
+            System.out.println("Completed (true/false): ");
+            boolean status = scanner.nextBoolean();
+            scanner.nextLine();
+
+            listOfTasks.addTask(taskName, taskDescription, priority, status);
+
+            System.out.println("Do you want to continue adding more tasks (yes/no): ");
+            String response = scanner.nextLine();
+
+            if (response.equals("no")) {
+                break;
+            }
+        }
 
         listOfTasks.sortPriority();
-        System.out.print("Sort tasks by priority:");
+        System.out.print("\nSort tasks by priority:");
         listOfTasks.printTasks();
 
         listOfTasks.removeCompletedTask();
@@ -233,6 +215,6 @@ class TaskList {
         listOfTasks.printTasks();
 
         boolean isEmptyOrNot = listOfTasks.checkIfEmpty();
-        System.out.print("\nIs the list empty: " + isEmptyOrNot);
+        System.out.println("\nIs the list empty: " + isEmptyOrNot);
     }
 }

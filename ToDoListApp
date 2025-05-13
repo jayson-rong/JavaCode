@@ -1,0 +1,160 @@
+import java.util.*;
+
+class Task implements Comparable <Task> {
+    String name;
+    String description;
+    int priority;
+    boolean isCompleted;
+    public Task(String name, String description, int priority, boolean isCompleted) {
+        this.name = name;
+        this.description = description;
+        this.priority = priority;
+        this.isCompleted = isCompleted;
+    }
+    public int compareTo(Task other) {
+        int result = Integer.compare(this.priority, other.priority);
+        return result;
+    }
+    public String toString() {
+        String status = isCompleted ? "✅" : "❌";
+        return "Task: " + name + " " + status +
+                "\nDescription: " + description +
+                "\nPriority: " + priority +
+                "\nCompleted: " + (isCompleted ? "Yes" : "No") + "\n";
+    }
+}
+public class ToDoListApp {
+    Map<String, Task> taskMap = new HashMap<>();
+    Deque<UndoAction> undo = new ArrayDeque<>();
+    class UndoAction {
+        String whatAction;
+        Task task;
+        UndoAction(String whatAction, Task task) {
+            this.whatAction = whatAction;
+            this.task = task;
+        }
+    }
+    public void addTask(String name, String description, int priority, boolean completed) {
+        if (taskMap.containsKey(name)) {
+            System.out.println("You already added the name of this task. Please type another name.");
+            return;
+        }
+        Task task = new Task(name, description, priority, completed);
+        taskMap.put(name, task);
+        undo.push(new UndoAction("Add", task));
+        System.out.println("You added a task.");
+    }
+    public void markCompleted(String name) {
+        Task task = taskMap.get(name);
+        if (task != null) {
+            task.isCompleted = true;
+            undo.push(new UndoAction("Complete", task));
+            System.out.println("You have marked the task as completed.");
+        } else {
+            System.out.println("There is no task to be marked as completed.");
+        }
+    }
+    public void removeTask(String name) {
+        Task task = taskMap.remove(name);
+        if (task != null) {
+            undo.push(new UndoAction("Remove", task));
+            System.out.println("You have removed the task.");
+        } else {
+            System.out.println("There is no task to be removed.");
+        }
+    }
+    public void pressUndo() {
+        if (undo.isEmpty()) {
+            System.out.println("No action to undo.");
+            return;
+        }
+        UndoAction previousAction = undo.pop();
+        if (previousAction.whatAction.equals("Add")) {
+            taskMap.remove(previousAction.task.name);
+            System.out.println("You have undo your added task. The task has been removed.");
+        } else if (previousAction.whatAction.equals("Complete")) {
+            Task task = previousAction.task;
+            task.isCompleted = false;
+            System.out.println("You have undo the completed task.");
+        } else if (previousAction.whatAction.equals("Remove")) {
+            Task task = previousAction.task;
+            taskMap.put(task.name, task);
+            System.out.println("You have undo the removed task.");
+        }
+    }
+    public void viewAllTasks() {
+        if (taskMap.isEmpty()) {
+            System.out.println("There are no tasks to view.");
+            return;
+        }
+        for (Task task : taskMap.values()) {
+            System.out.println(task);
+        }
+    }
+    public void viewIncompleteTasks() {
+        boolean areThereTasks = false;
+        for (Task task : taskMap.values()) {
+            if (!task.isCompleted) {
+                System.out.println(task);
+                areThereTasks = true;
+            }
+        }
+        if (!areThereTasks) {
+            System.out.println("You have completed all tasks.");
+        }
+    }
+    public void runApp() {
+        Scanner scanner = new Scanner(System.in);
+
+        boolean runningTheApp = true;
+        while (runningTheApp) {
+            System.out.println("\nTo-Do List Menu");
+            System.out.println("1. Add Task");
+            System.out.println("2. Mark Task as Completed");
+            System.out.println("3. Remove Completed Task");
+            System.out.println("4. View All Tasks");
+            System.out.println("5. View Incomplete Tasks");
+            System.out.println("6. Undo Last Action");
+            System.out.println("7. Exit");
+            System.out.print("\nEnter your option: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            if (option == 1) {
+                System.out.print("Task name: ");
+                String name = scanner.nextLine();
+                System.out.print("Description: ");
+                String desc = scanner.nextLine();
+                System.out.print("Priority: ");
+                int priority = scanner.nextInt();
+                scanner.nextLine();
+                addTask(name, desc, priority, false);
+            } else if (option == 2) {
+                System.out.print("Enter task name to mark as completed: ");
+                String name = scanner.nextLine();
+                markCompleted(name);
+            } else if (option == 3) {
+                System.out.print("Enter task name to remove: ");
+                String name = scanner.nextLine();
+                removeTask(name);
+            } else if (option == 4) {
+                viewAllTasks();
+            } else if (option == 5) {
+                viewIncompleteTasks();
+            } else if (option == 6) {
+                pressUndo();
+            } else if (option == 7) {
+                System.out.println("Exiting the app!");
+                runningTheApp = false;
+            } else {
+                System.out.println("Not a valid option. Please try again.");
+            }
+        }
+        scanner.close();
+    }
+    public static void main(String[] args) {
+        ToDoListApp open = new ToDoListApp();
+        open.runApp();
+    }
+}
